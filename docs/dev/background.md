@@ -143,7 +143,110 @@ return new Promise((resolve, reject) => {
 // ==/UserScript==
 
 return new Promise((resolve, reject) => {
-  // Your code here...
+  // // ==UserScript==
+// @name 大麦抢票
+// @namespace ZnG大麦
+// @version 8.5.0
+// @description 全񇶂𳳠抢票，񇶂𳳠提交订单
+// @author ZnG大麦
+ 
+// @match /*
+// @match /*
+// @match /*
+// @match /*
+// @match /*
+// @match </h5/mtop.alibaba.detail.subpage.getdetail/*>
+// @grant GM_xmlhttpRequest
+// @connect
+// @require /jquery/3.5.1/jquery.min.js
+// @license wxywxy
+// ==/UserScript==
+// /tms/selectSeat?itemId=624499596673&hasPromotion=true&performId=210252620&skuId=4427321477193&projectId=624499596673&spm=jectinfo.dbuy
+// /tms/selectSeat?itemId=624499596673&performId=210252601&skuId=4427321477292&projectId=624499596673
+var version = "8.5.0";
+var $style = $(
+"<style>" +
+"#control_container{margin: 20px 0;background:#e9e9e9;padding:20px;overflow: hidden;}" +
+"p{margin:10px 0;}" +
+"#control_container button{width:80%;height: 60px;line-height:60px;margin:10px 10%;font-size:30px;border-radius:30px}" +
+"#start_btn{color:#fff;background:#ff457a;}" +
+"#bp_btn{color:#fff;background: #ff457a;}" +
+"#end_btn{color:#666;background: #cfcfcf;}" +
+ 
+".control_container_box{display: flex;align-items: center;flex-wrap: wrap;padding-right: 20px;border: 1px solid #ccc;}" +
+".input_wrapper{display: flex;justify-content:center;font-size: 16px; margin-bottom:10px;}" +
+".input_wrapper_box{flex: 4;}" +
+".input_wrapper_phone{display: flex;justify-content: flex-end;font-size: 25px;padding:20px 0; text-align:center;}" +
+".input_wrapper_phone input{width: 50%;}" +
+".notice{margin:10px 10px;padding:10px 10px;color:darkslategrey;}" +
+"#wx{text-align: center; flex:1;color: #333;}" +
+"#countdown_wrapper {display:none; font-size: 30px; text-align:center; background:#ffeaf1;}" +
+"#countdown_wrapper p{width:100%;}" +
+"#countdown {font-size: 50px; color:#ff1268;}" +
+".warning {color:red; font-weight:400;}" +
+"h3 {font-weight:800;}" +
+"</style>"
+);
+$(document).ready(function () {
+var curr_url = window.location.href;
+if (curr_url.includes("/")) {
+var order_url = sessionStorage.getItem("order_url");
+if (order_url) {
+window.location.href = order_url;
+} else {
+if (
+$("div.buybtn").text() == "选座购买" ||
+$(".service-note .service-note-name").text().includes("𽗰选座")
+ 
+) {
+alert(
+"无𸽏全񇶂𳳠选座，请看“注意”𹟔𶱦。不要忘了先登录，填好联系人信息，删除𶖊余联系人。"
+);
+detail_seat_ui();
+} else {
+detail_ui();
+}
+}
+}
+if (curr_url.includes("/")) {
+if (curr_url.includes("/multi/flow")) {
+//𺣎单挤爆了
+var order_url = curr_url.substring(curr_url.indexOf("=") + 1);
+sessionStorage.setItem("order_url", order_url);
+window.location.href = order_url;
+} else {
+if ($(".error-msg").length > 0) {
+if ($(".error-msg").text().includes("已񃜾期")) {
+document
+.getElementsByClassName("next-row error-reload")[0]
+.children[0].click();
+} else {
+var order_url = sessionStorage.getItem("order_url");
+ 
+if (order_url) {
+window.location.href = order_url;
+} else {
+window.location.reload();
+}
+}
+} else {
+setTimeout(fill_form, 200);
+}
+}
+}
+if (curr_url.includes("/")) {
+// console.log("seat");
+var people_num = new URLSearchParams(window.location.href).get(
+"people_num"
+);
+if (people_num == 1) {
+new MutationObserver(function (mutations) {
+if (
+document.querySelector(
+"#app > div.render-result-container > div.select-result"
+)
+) {
+// console.log("found ele");
   GM_notification({
     title: "retry",
     text: "10秒后重试",
